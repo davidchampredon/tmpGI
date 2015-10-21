@@ -1,0 +1,13 @@
+popSize,5000
+horizon,299
+mc_iter,20
+njobs,4
+nE,3
+nI,3
+init_I1,7
+calc_WIW_Re,0
+doExact,1
+timeStepTauLeap,0.12
+R0,4
+latent_mean,5
+infectious_mean,5

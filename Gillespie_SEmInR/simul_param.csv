@@ -1,0 +1,11 @@
+parameter, value
+popSize, 3000
+horizon, 299
+mc_iter, 8 
+njobs, 4
+nE, 3
+nI, 3
+init_I1, 7
+calc_WIW_Re, 0
+doExact,1
+timeStepTauLeap,0.12
