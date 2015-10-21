@@ -8,3 +8,5 @@ Gillespie_SEmInR/param_all_list.csv
 Rscript/.Rhistory
 
 Rscript/animation/.Rhistory
+
+Gillespie_SEmInR/OUT/*.out
