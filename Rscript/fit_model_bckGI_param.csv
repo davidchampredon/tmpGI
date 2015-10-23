@@ -1,4 +1,5 @@
 name,value
-iter.abc,16
+iter.abc,20
 ncpus, 4
-max.x, 30
+max.x, 50
+quantile_post, 0.10

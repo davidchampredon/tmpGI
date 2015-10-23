@@ -1,5 +1,6 @@
-
-
+library(reshape2)
+library(ggplot2)
+library(plyr)
 
 distance.interpol <- function(x1,y1, 
 							  x2,y2, 
@@ -158,21 +159,20 @@ ABC.trials.unit.intrinsic <- function(i, GIbck.sim.melt,latent_mean,infectious_m
 
 
 
-ABC.posterior <- function(abc, thresh){
+ABC.posterior <- function(abc, thresh, plot.title=NULL){
 	### ANALYSIS OF ABC TRIALS BELOW ACCEPTANCE THRESHOLD
 	
 	abc.keep <- subset(abc,dist<thresh)
-	plot(sort(abc.keep$dist),typ="s")
+	plot(sort(abc$dist),typ="s",main=plot.title)
+	abline(h=thresh)
 	
 	print("Minimum distance parameters:")
 	print(abc.keep[which.min(abc.keep$dist),])
 	
-	library(reshape2)
-	library(ggplot2)
-	library(plyr)
 	df <- melt(abc.keep,id.vars = "dist")
 	
 	g<- ggplot(df)+geom_histogram(aes(x=value),binwidth=0.5)+facet_wrap(~variable,scales="free")
+	g <- g + ggtitle(plot.title)
 	plot(g)
 	
 	df2 <- ddply(df,.variables = "variable",summarize,m=mean(value),s=sd(value),n=length(value))
@@ -283,11 +283,6 @@ plot.fit.results.new <- function(GI.ODE.truth,
 							 init_I1,
 							 prm.fit,
 							 prm.fit.naive,
-# 							 latent_mean ,
-# 							 infectious_mean ,
-# 							 R0 ,
-# 							 nE,
-# 							 nI,
 							 max.x
 ){
 	
@@ -334,40 +329,73 @@ plot.fit.results.new <- function(GI.ODE.truth,
 	GI.ODE.fit.naive <- theo.GI.fit.naive[["GI.ODE"]]
 	
 	
+	plotfit <- function(time.true,
+	                    time.fit,
+	                    time.fit.naive,
+	                    time.sim,
+	                    data.true, 
+	                    data.fit, 
+	                    data.fit.naive,
+	                    data.sim,
+	                    max.x,title,
+	                    ylab,yrng,
+	                    pch.data){
+	  
+	  lwd.true <- 2
+	  lwd.fit <- 7
+	  lwd.fit.naive <- 7
+	  mag <- 1.5
+	  
+	  plot(x=time.sim, 
+	       y=data.sim,
+	       pch=pch.data,
+	       las = 1,
+	       ylim=yrng,
+	       main=title,
+	       xlab = "Calendar time",
+	       ylab = ylab,
+	       cex.lab = mag, cex.main=mag, cex.axis=mag)
+	  
+	  lines(x=time.fit, y=data.fit, col="red", lwd=lwd.fit)
+	  lines(x=time.fit.naive, y=data.fit.naive, col="red", lwd=lwd.fit.naive, lty=2)
+	  lines(x=time.true, y=data.true, lwd=lwd.true, col="grey")
+	  abline(v=max.x,lty=2, lwd=2)
+	  grid()
+	}
+	
+	
 	par(mfrow=c(1,2))
 	yrng = c(0,1.1*max(GIbck.sim.melt$m,GI.ODE.fit$GI.bck.mean,na.rm = T))
 	
 	### Mean GI
-	###
-	plot(x=GI.ODE.truth$time, 
-		 y=GI.ODE.truth$GI.bck.mean, 
-		 typ="l",lwd=1,
-		 col="grey",
-		 ylim=yrng,
-		 main="Backward GI Mean",
-		 xlab = "Calendar time",
-		 ylab = "Mean of backward GI")
+	plotfit(time.true = GI.ODE.truth$time,
+	        time.fit = GI.ODE.fit$time,
+	        time.fit.naive = GI.ODE.fit.naive$time,
+	        time.sim = GIbck.sim.melt$timeround,
+	        data.true = GI.ODE.truth$GI.bck.mean,
+	        data.fit = GI.ODE.fit$GI.bck.mean,
+	        data.fit.naive = GI.ODE.fit.naive$GI.bck.mean,
+	        data.sim = GIbck.sim.melt$m,
+	        max.x = max.x,
+	        title = "Fit of Backward GI Mean",
+	        ylab = "Mean of backward GI",
+	        yrng = yrng,
+	        pch.data = 16)
 	
-	lines(x=GI.ODE.fit$time, GI.ODE.fit$GI.bck.mean,col="red",lwd=6)
-	lines(x=GI.ODE.fit.naive$time, GI.ODE.fit.naive$GI.bck.mean,col="red",lwd=6, lty=2)
-	
-	points(x=GIbck.sim.melt$timeround, y = GIbck.sim.melt$m,pch=16)
-	abline(v=max.x,lty=2)
-	grid()
-	
-	### Std dev of GI
-	###
-	plot(x=GIbck.sim.melt$timeround, 
-		 y = GIbck.sim.melt$sd^2, 
-		 main="Backward GI Variance",
-		 xlab = "Calendar time",
-		 ylab = "Variance of backward GI")
-	
-	lines(x=GI.ODE.fit$time,y=GI.ODE.fit$GI.bck.var,col="red",lwd=6)
-	lines(x=GI.ODE.fit.naive$time,y=GI.ODE.fit.naive$GI.bck.var,col="red",lwd=6, lty=2)
-	
-	abline(v=max.x,lty=2)
-	grid()
+	### Std dev of GI	
+	plotfit(time.true =NULL,
+	        time.fit = GI.ODE.fit$time,
+	        time.fit.naive = GI.ODE.fit.naive$time,
+	        time.sim = GIbck.sim.melt$timeround,
+	        data.true = NULL,
+	        data.fit = GI.ODE.fit$GI.bck.var,
+	        data.fit.naive = GI.ODE.fit.naive$GI.bck.var,
+	        data.sim = GIbck.sim.melt$sd^2,
+	        max.x = max.x,
+	        title = "Fit of Backward GI Variance",
+	        ylab = "Variance of backward GI",
+	        yrng = NULL,
+	        pch.data = 1)
 }
 
 

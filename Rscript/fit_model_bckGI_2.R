@@ -17,6 +17,7 @@
 #####
 #################################################################
 
+t0 <- Sys.time()
 
 source("calc_theoretical_GI.R")
 source("read_simul_GI_FCT.R")
@@ -35,12 +36,14 @@ iter.abc <- fitprm$value[fitprm$name=="iter.abc"]
 ncpus <- fitprm$value[fitprm$name=="ncpus"]
 # Number of dates to fit to
 max.x <- fitprm$value[fitprm$name=="max.x"]
+# quantile of best ABC distances for posteriors:
+q.fit <- fitprm$value[fitprm$name=="quantile_post"]
 
 save.to.file <- TRUE
 
 
 ### ==== Retrieve simulation data (target to fit) ====
-  
+
 # Read the simulation parameter values:
 path.model <- as.character(read.csv(file="path_model.txt",header = F)[1,1])
 simprm.list <- as.character(read.csv(paste0(path.model,"param_all_list.csv"),header=F)[,1])  
@@ -89,9 +92,9 @@ GIbck.sim.melt = ddply(GIbck.sim,c("timeround"),summarize,
 # 'True' model bck GI implied by 
 # 'true' value parameters (the one used in simulations)
 theo.GI.truth <- calc.theoretical.GI(file.prmset = paste0(path.model,file.prm), 
-                               n.points.GI.crv = min(200,max.horizon),
-                               horizon = 1.02*max.horizon,
-                               do.plot = FALSE)
+                                     n.points.GI.crv = min(200,max.horizon),
+                                     horizon = 1.02*max.horizon,
+                                     do.plot = FALSE)
 
 GI.ODE.truth <- theo.GI.truth[["GI.ODE"]]
 
@@ -102,52 +105,78 @@ GI.ODE.truth <- theo.GI.truth[["GI.ODE"]]
 ###
 
 # ABC priors:
-latent_mean <- runif(n=iter.abc,min = 1, max=15)  
-infectious_mean <- runif(n=iter.abc,min = 1, max=15)  
-R0 <- pmax(rep(x=0.1,times=iter.abc),rnorm(n=iter.abc, mean = 2, sd=0.6))
-nE <- round(runif(n=iter.abc, min = 1, max=12))
-nI <- round(runif(n=iter.abc, min = 1, max=12))
+latent_mean.prior <- runif(n=iter.abc,min = latent_mean/2, max=latent_mean*2)  
+infectious_mean.prior <- runif(n=iter.abc,min =infectious_mean/2, max=infectious_mean*2)  
+nE.prior <- round(runif(n=iter.abc, min = 1, max=2*nE))
+nI.prior <- round(runif(n=iter.abc, min = 1, max=2*nE))
 
-### ABC trials:
+R0max <- 2*R0
+meanR0 <- R0/R0max
+betaSize <- 2
+a <- betaSize/meanR0
+b <- betaSize/(1-meanR0)
+R0.prior <- R0max*rbeta(n = iter.abc, shape1 = b,shape2 = a)  
+hist(R0.prior,breaks=30)
+
+####################
+###  ABC TRIALS  ###
+####################
+
+### FIT OF BACKWARD GI
 ###
+message("Fitting backward GI...")
 require(snowfall)
 sfInit(parallel = TRUE, cpu = ncpus)
 sfLibrary(deSolve)
 idx.apply <- 1:iter.abc
 sfExportAll()
-system.time(res <- sfSapply(idx.apply, ABC.trials.unit, 
-							GIbck.sim.melt,
-							latent_mean,
-							infectious_mean,R0,nE,nI,max.x))
+system.time(res <- sfSapply(idx.apply, 
+                            ABC.trials.unit, 
+                            GIbck.sim.melt,
+                            latent_mean.prior,
+                            infectious_mean.prior,
+                            R0.prior,
+                            nE.prior,
+                            nI.prior,
+                            max.x))
 sfStop()
-
-# Store all trials in a data frame:
-abc.trials <- data.frame(t(res))
-
-# Posterior
-distance.threshold <- 2*min(abc.trials$dist) 
-abc.post <- ABC.posterior(abc.trials, thresh=distance.threshold)
 
 
 ### NAIVE FIT OF INTERINSIC GI
 ###
+message("Fitting (naively) intrinsic GI...")
 require(snowfall)
 sfInit(parallel = TRUE, cpu = ncpus)
 sfLibrary(deSolve)
 idx.apply <- 1:iter.abc
 sfExportAll()
 system.time(res.intrinsic <- sfSapply(idx.apply, 
-							ABC.trials.unit.intrinsic, 
-							GIbck.sim.melt,
-							latent_mean,
-							infectious_mean,R0,nE,nI,max.x))
+                                      ABC.trials.unit.intrinsic, 
+                                      GIbck.sim.melt,
+                                      latent_mean.prior,
+                                      infectious_mean.prior,
+                                      R0.prior,
+                                      nE.prior,
+                                      nI.prior,
+                                      max.x))
 sfStop()
 
+
 # Store all trials in a data frame:
+abc.trials <- data.frame(t(res))
 abc.trials.intrinsic <- data.frame(t(res.intrinsic))
 
-distance.threshold.intrinsc <- 2*min(abc.trials.intrinsic$dist) 
-abc.post.intrinsic <- ABC.posterior(abc.trials.intrinsic, thresh=distance.threshold)
+# Posteriors:
+
+distance.threshold <-  quantile(x=abc.trials$dist, probs = q.fit) 
+distance.threshold.intrinsc <- quantile(x=abc.trials.intrinsic$dist, probs = q.fit) 
+
+abc.post <- ABC.posterior(abc.trials, 
+                          thresh=distance.threshold,
+                          plot.title = "Fit to bck GI")
+abc.post.intrinsic <- ABC.posterior(abc.trials.intrinsic, 
+                                    thresh=distance.threshold.intrinsc,
+                                    plot.title = "Fit to naive intrinsic GI")
 
 
 ######################
@@ -186,42 +215,30 @@ nI.mean.int = round(abc.post.intrinsic$m[abc.post.intrinsic$variable=="nI"])
 
 # plotting fit using mean of posterior for fitted param values:
 
-# DELETE:
-# plot.fit.results(GI.ODE.truth,
-#                  GIbck.sim.melt,
-#                  deg.poly=9,
-#                  popSize, 
-#                  init_I1=7,
-#                  latent_mean = latent_mean.mean,
-#                  infectious_mean = infectious_mean.mean,
-#                  R0 = R0.mean,
-#                  nE = nE.mean,
-#                  nI = nI.mean,
-#                  max.x = max.x
-# )
 
 prm.fit = list( latent_mean = latent_mean.mean,
-				infectious_mean = infectious_mean.mean,
-				R0 = R0.mean,
-				nE = nE.mean,
-				nI = nI.mean)
+                infectious_mean = infectious_mean.mean,
+                R0 = R0.mean,
+                nE = nE.mean,
+                nI = nI.mean)
 prm.fit.naive = list( latent_mean = latent_mean.mean.int,
-				infectious_mean = infectious_mean.mean.int,
-				R0 = R0.mean.int,
-				nE = nE.mean.int,
-				nI = nI.mean.int)
+                      infectious_mean = infectious_mean.mean.int,
+                      R0 = R0.mean.int,
+                      nE = nE.mean.int,
+                      nI = nI.mean.int)
 
-if(save.to.file) pdf("fit_model_bckGI.pdf",width=15, height=10)
+if(save.to.file) pdf("fit_model_bckGI.pdf",width=20, height=10)
 
 plot.fit.results.new(GI.ODE.truth,
-				 GIbck.sim.melt,
-				 deg.poly=9,
-				 popSize, 
-				 init_I1=7,
-				prm.fit=prm.fit,
-				prm.fit.naive = prm.fit.naive,
-				 max.x = max.x
+                     GIbck.sim.melt,
+                     deg.poly=9,
+                     popSize, 
+                     init_I1=7,
+                     prm.fit=prm.fit,
+                     prm.fit.naive = prm.fit.naive,
+                     max.x = max.x
 )
+if(save.to.file) dev.off()
 
 
 # plotting fit using fitted param values that minimizes the error:
@@ -238,14 +255,9 @@ plot.fit.results.new(GI.ODE.truth,
 #                  max.x = max.x
 # )
 
-if(save.to.file) dev.off()
-
-
-
-# Prior coverage:
-if(save.to.file) pdf("fit_model_bckGI_info.pdf",width=15, height=10)
-plot(abc.trials)
-if(save.to.file) dev.off()
 
 save.image(fitrdata)
+
+t1 <- Sys.time()
+message(paste("Fit bck vs. naive completed in",round((t1-t0),1),"minutes"))
 
