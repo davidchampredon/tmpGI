@@ -67,15 +67,15 @@ $(PROG_NAME_SF_GCC): $(OBJ_LIST_SF_GCC)
 # ===================
 
 runSimul: $(PROG_NAME)
-	./cleanout
+	./clean
 	./$< &
 
 launchsf: $(PROG_NAME_SF) $(PROG_NAME_U)
-	./cleanout
+	./clean
 	./$< &
 
 launchsf_gcc: $(PROG_NAME_SF_GCC) $(PROG_NAME_U_GCC)
-	./cleanout
+	./clean
 	./$< &
 
 
@@ -86,11 +86,11 @@ simul_param.out: generate_param_files.R $(PRM_LIST)
 	Rscript $<
 
 simul.out: $(PROG_NAME_SF) $(PROG_NAME_U) simul_param.out
-	./cleanout
+	./clean
 	./$(PROG_NAME_SF)
 
 simul_gcc.out: $(PROG_NAME_SF_GCC) $(PROG_NAME_U_GCC) simul_param.out
-	./cleanout
+	./clean
 	./$(PROG_NAME_SF_GCC)
 
 
