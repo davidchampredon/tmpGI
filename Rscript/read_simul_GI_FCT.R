@@ -17,7 +17,6 @@ read.mc.files.parallel <- function(filerootname,file.paramset)
   sfInit(parallel = T, cpu = n.cpus)
   
   read.one.file <- function(dummy_index,flist) {
-    message(paste("DEBUG",dummy_index))
     tmp <- read.csv(file = flist[dummy_index], header = F)
     tmp$mc <- dummy_index
     return(tmp)

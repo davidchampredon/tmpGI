@@ -25,7 +25,7 @@ DIR_CPP := ../Gillespie_SEmInR
 ### Re-create all figures (delete all existing!) 
 ###########################################################
 
-allfig.out: $(EXPL_GI) $(SIM_VS_THEO) $(MULTI_GI) $(FCT_FILES) $(DIR_CPP)/OUT/*.out
+allfig.out: $(EXPL_GI) $(SIM_VS_THEO) $(MULTI_GI) $(FCT_FILES) $(DIR_CPP)/OUT/*.*
 	/bin/rm -f *.pdf
 	Rscript $(EXPL_GI) &
 	Rscript $(SIM_VS_THEO) &
