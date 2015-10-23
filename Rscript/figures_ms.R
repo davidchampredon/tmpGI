@@ -59,10 +59,19 @@ plot.theo.vs.sim <- function(dat.gil,
 	
 	tmp = floor(dat.ode$time)
 	
-	# DEBUG
-	print(dat.ode$time)
 	
 	idx.dist <- which(tmp%in%tsvec)
+	
+	# Catch user-entry error
+	if(length(idx.dist)!=length(tsvec)){
+	  msg <- paste("The simulation times do not span the calendar times asked.",
+	               "; Simulation time range:",paste(range(tmp),collapse = "-"),
+	               "; Calendar time asked:",paste(tsvec,collapse = ","),
+	               "==> Re-enter appropriate calendar time!")
+	  message(msg)
+	  stop()
+	}
+	
 	points(x=tsvec, y=gi.ode[idx.dist],pch=15, cex=1.5)
 	points(x=tsvec, y=gi.ode[idx.dist],pch=0, cex=2.5)
 }

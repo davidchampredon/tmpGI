@@ -10,3 +10,9 @@ Rscript/.Rhistory
 Rscript/animation/.Rhistory
 
 Gillespie_SEmInR/OUT/*.out
+
+*.pdf
+
+*.out
+
+*.RData
