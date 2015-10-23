@@ -1,0 +1,4 @@
+rm -f ./OUT/*.out
+rm -rf gilSEIR*
+rm -rf ./*.out
+
