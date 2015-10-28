@@ -138,7 +138,6 @@ void vectorFromFile(vector<double>& res, const char * theFileName)
 		thefile >> line;
 		if (thefile.eof()) break;
 		x.push_back (line);	
-		//cout<<"DEBUG adding : " << line<<endl;
 	}
 	
 	thefile.close();
@@ -166,7 +165,6 @@ void vectorFromFile(vector<int>& res, string theFileName)
 		thefile >> line;
 		if (thefile.eof()) break;
 		x.push_back (line);	
-		//cout<<"DEBUG adding : " << line<<endl;
 	}
 	
 	thefile.close();
@@ -905,7 +903,6 @@ vector<double> smoothVector(vector<unsigned long int> x, int lagSmooth)
 		for (int k=-lagSmooth; k<=lagSmooth; k++) 
 		{
 			sum += (double)(x[i+k]);
-			//cout << "sum_"<<i<<"_"<<k<<" = "<<sum<<endl; // DEBUG
 		}
 		
 		s[i-lagSmooth] = sum/(2*lagSmooth+1);

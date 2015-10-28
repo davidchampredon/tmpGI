@@ -112,10 +112,6 @@ vector<unsigned int> multinomial(unsigned int N, vector<double> proba)
 	// Retrieve the dimension that defines the random variables vector
 	unsigned long dim = proba.size();
 	
-	// DEBUG
-	//cout << "binom_dim:" <<dim << endl;
-	// cout << "binom_trials:" <<N << endl;
-	
 	// Healthy checks
 	if (dim==0 || N==0)
 	{
@@ -209,82 +205,6 @@ int	probaHistogramInt(vector<int> values, vector<double> probas)
 }
 	
 
-// === GSL WRAPPERS ===
-
-
-//gsl_rng * GSL_generator(unsigned int seed)
-//{
-//	const gsl_rng_type * T;
-//	gsl_rng * r;
-//	gsl_rng_env_setup();
-//	T = gsl_rng_default;
-//	r = gsl_rng_alloc(T);
-//	
-//	gsl_rng_set(r, seed);
-//	
-//	return r;
-//	
-//	//gsl_rng_free(r);
-//	
-//	
-//}
-//
-//
-//
-//vector<unsigned int> multinomial_gsl(gsl_rng * r,unsigned int N, vector<double> proba)
-//{
-//	// Retrieve the dimension that defines the random variables vector
-//	int dim = proba.size();
-//	
-//	// DEBUG
-//	//cout << "binom_dim:" <<dim << endl;
-//	// cout << "binom_trials:" <<N << endl;
-//	
-//	// Healthy checks
-//	if(true)
-//	{
-//		if (dim==0 || N==0)
-//		{
-//			cout << endl << "ERROR [multinomial]: can't generate with dimension=0"<<endl;
-//			if (dim==0) cout << "size of proba vector = 0 !"<<endl;
-//			if (N==0) cout << "N = 0 !"<<endl;
-//			exit(1);
-//		}
-//		double s=0;
-//		for (int i=0; i<proba.size(); i++) {s+=proba[i];}
-//		if (fabs(s-1)>0.0001)
-//		{
-//			cout << endl << "ERROR [multinomial]: probabilities do not add-up to 1"<<endl;
-//			displayVector(proba);
-//			exit(1);
-//		}
-//	}
-//	
-//	// initiate the result vector 
-//	vector<unsigned int> res(dim); 
-//		
-//	// GSL variable
-//	double *p = new double[dim];
-//	unsigned int *res_gsl = new unsigned int[dim];
-//	
-//	for (int k=0; k<dim; k++) p[k] = proba[k];
-//	
-//	// Call GSL generator
-//	gsl_ran_multinomial(r,dim,N,p,res_gsl);
-//	
-//	// Reformat result to vector type
-//	for (int k=0; k<dim; k++) res[k] = res_gsl[k];//res.push_back(res_gsl[k]);//
-//	
-//	delete[] p;
-//	delete res_gsl;
-//	
-//	return res;
-//}
-
-
-
-
-// Old stuff
 
 
 double uniform(int seed)

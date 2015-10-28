@@ -515,9 +515,6 @@ void simulator::run__OLD(double horizon,
 	
 	// Simulation
 	
-	//DEBUG
-	//	cout << t <<"; census_I: "<<census_I()<<	endl;
-	
 	while ( t<horizon && at_least_one_S_and_E_or_I() )
 	{
 		// Draw the next event time based on the sum of specified rates
@@ -606,19 +603,6 @@ void simulator::run__OLD(double horizon,
 		double inc = (et==0)?1:0;
 		inc += _cumIncidence[_cumIncidence.size()-1];
 		_cumIncidence.push_back(inc);
-		
-		
-		// === DEBUG ====
-		//		cout << t <<"; et="<<et<<" ; census_I: "<<census_I()<<	endl;
-		//if(!at_least_one_S_and_I()) cout<<"DEBUG:"<<census_I()<<endl;
-		//		if(false){
-		//			coutline(20);
-		//			displayVector(census());
-		//			cout << "_count_S: " << _count_S << endl;
-		//			cout << "_count_I: " << _count_I << endl;
-		//			cout << "Interval:"<< dt <<" ; time:"<<t;
-		//			cout << " ; Event type:"<< et <<endl;
-		//		}
 		
 	} // end-while-loop
 	
