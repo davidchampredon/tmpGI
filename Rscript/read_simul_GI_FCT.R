@@ -114,10 +114,6 @@ get.GI.fwd.sim <- function(doParallel,file.paramset,t.bucket,path.model){
   # and the clock starts counting from that moment, so we miss the exposed duration! 
   GIfwd <- subset(GIfwd,time.infector>0)
   
-  # DELETE?
-  # GIfwd2 = melt(GIfwd,id.vars = c("time.infector","mc"),na.rm = T)
-  # GIfwd2$time.infector2 = round(GIfwd2$time.infector/t.bucket)*t.bucket
-  # GIfwd2$GIf <- GIfwd2$value
   return(GIfwd)
 }
 

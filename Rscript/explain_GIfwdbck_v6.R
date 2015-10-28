@@ -209,9 +209,9 @@ plot.GI.bck <- function(time.t,tt,g, I, correct.first.inc)
 }
 
 
-####################################################
+##################
 ###    PLOTS   ###
-####################################################
+##################
 
 if(do.bck){
   if(save.to.file) pdf("explain_GI_bck.pdf", height=15,width=10)

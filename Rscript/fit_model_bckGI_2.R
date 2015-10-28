@@ -240,22 +240,6 @@ plot.fit.results.new(GI.ODE.truth,
 )
 if(save.to.file) dev.off()
 
-
-# plotting fit using fitted param values that minimizes the error:
-# plot.fit.results(GI.ODE.truth,
-#                  GIbck.sim.melt,
-#                  deg.poly=9,
-#                  popSize, 
-#                  init_I1=7,
-#                  latent_mean = latent_mean.best,
-#                  infectious_mean = infectious_mean.best,
-#                  R0 = R0.best,
-#                  nE = nE.best,
-#                  nI = nI.best,
-#                  max.x = max.x
-# )
-
-
 save.image(fitrdata)
 
 t1 <- Sys.time()

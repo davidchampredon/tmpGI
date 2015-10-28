@@ -11,8 +11,8 @@ source("read_simul_GI_FCT.R")
 source("figures_ms.R")
 
 save.to.file <- TRUE
-add.info.filename <- F#TRUE
-info.in.title <- F#TRUE
+add.info.filename <- F #TRUE
+info.in.title <- F #TRUE
 
 # Path to the C++ model generating simulations
 path.model <- "../Gillespie_SEmInR/"

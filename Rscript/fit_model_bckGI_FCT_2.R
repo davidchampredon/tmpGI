@@ -18,13 +18,6 @@ distance.interpol <- function(x1,y1,
 	fit2 <- lm(y2~poly(x2,deg.poly))
 	interpol2 <- predict(fit2, data.frame(x2=x1))
 	
-	if(do.plot){ # plots to debug
-		plot(x1,y1)
-		lines(x1,interpol1,typ="l")
-		points(x2,y2,col="red",pch=4)
-		lines(x1,interpol2,typ="l",col="red")
-		abline(v=max.x,lty=2,lwd=3)
-	}
 	idx.max = which(x1 <= max.x)
 	dist <- sqrt(sum((interpol1[idx.max]-interpol2[idx.max])^2))
 	return(dist)
@@ -101,7 +94,6 @@ fct.to.minimize.intrinsic <- function(GIbck.sim.melt,
 											n.points.GI.crv = min(200,max.horizon),
 											horizon = 1.02*max.horizon,
 											do.plot = FALSE)
-	#GI.ODE.new <- theo.GI.new[["GI.ODE"]]
 	
 	# Retrieve intrinsic GI (g) from this simulation:
 	g.sim  <- theo.GI.new[["GI.intrinsic"]]
