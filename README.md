@@ -1,9 +1,12 @@
 # tmpGI
-temporary repo to prepare for GI project
+
 
 Electronic supplementary material for: 
 
 *Intrinsic and realized generation intervals in infectious-disease transmission*. David Champredon and Jonathan Dushoff. Proceedings of the Royal Society of London. Series B: Biological Sciences. Vol-XXX pages XXX-XXX
+
+Please acknowledge the reference above if you use any part of the code deposited here.
+
 
 **Instructions for Unix-like operating systems**
 
