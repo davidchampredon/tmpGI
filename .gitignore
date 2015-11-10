@@ -16,3 +16,7 @@ Gillespie_SEmInR/OUT/*.out
 *.out
 
 *.RData
+
+Gillespie_SEmInR/gilSEIR_SF
+
+Gillespie_SEmInR/gilSEIR_U
